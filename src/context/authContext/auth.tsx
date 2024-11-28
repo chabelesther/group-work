@@ -35,8 +35,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         displayName: userCredential.displayName || "",
         photoURL: userCredential.photoURL || "",
         createdAt: userDoc.exists() ? userDoc.data().createdAt : Date.now(),
-        role: userDoc.exists() ? userDoc.data().role || "student" : "student",
-        groups: userDoc.exists() ? userDoc.data().groups || [] : [],
+        // role: userDoc.exists() ? userDoc.data().role || "student" : "student",
+        projects: userDoc.exists() ? userDoc.data().groups || [] : [],
       };
 
       // Mettre à jour ou créer le document

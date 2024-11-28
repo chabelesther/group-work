@@ -6,7 +6,7 @@ interface UserProfile {
   photoURL?: string;
   createdAt: number;
   role?: "student" | "professional" | "admin";
-  groups?: string[];
+  projects?: string[];
 }
 
 // Interface pour le contexte d'authentification
