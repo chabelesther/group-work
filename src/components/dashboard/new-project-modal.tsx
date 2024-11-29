@@ -22,10 +22,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { db } from "@/lib/firebase";
-import { doc, setDoc, collection, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  collection,
+  serverTimestamp,
+  updateDoc,
+  arrayUnion,
+} from "firebase/firestore";
 import { useAuth } from "@/context/authContext/auth";
 import { Button } from "../ui/button";
 import { createInvitation, inviteCollaborator } from "@/lib/invitation";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -45,7 +53,7 @@ export default function NewProjectModal({
   const { user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-
+  const router = useRouter();
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -66,13 +74,16 @@ export default function NewProjectModal({
       const collaborators = data.collaborators
         ? data.collaborators.split(",").map((email) => email.trim())
         : [];
-
+      // Enregistre le projet dans la collection users
+      await updateDoc(doc(db, "users", user.uid), {
+        projects: arrayUnion(projectId),
+      });
       const projectData = {
         id: projectId,
         title: data.title,
         description: data.description,
         owner: { uid: user.uid, email: user.email },
-        collaborators,
+        collaborators: [...collaborators, user.email],
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
@@ -110,7 +121,7 @@ export default function NewProjectModal({
         });
       }
 
-      // router.push(`/editor/${projectId}`);
+      router.push(`/project/${projectId}`);
     } catch (error) {
       console.error("Error creating project:", error);
       toast({

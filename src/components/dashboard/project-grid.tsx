@@ -57,7 +57,7 @@ export default function ProjectGrid() {
       try {
         const projectsQuery = query(
           collection(db, "projects"),
-          where("owner", "==", user.uid),
+          where("owner.uid", "==", user.uid),
           orderBy("updatedAt", "desc")
         );
 
@@ -180,7 +180,7 @@ export default function ProjectGrid() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => router.push(`/editor/${project.id}`)}
+                    onClick={() => router.push(`/project/${project.id}`)}
                   >
                     <FileEdit className="h-4 w-4 mr-2" />
                     Éditer

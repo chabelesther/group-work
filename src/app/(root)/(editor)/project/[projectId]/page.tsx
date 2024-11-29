@@ -21,7 +21,8 @@ export default function Document({
   const { isDarkMode, darkMode, lightMode } = useDarkmode();
   const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
   const [collabToken, setCollabToken] = useState<string | null | undefined>();
-  const [aiToken, setAiToken] = useState<string | null | undefined>();
+  const [aiToken, setAiToken] = useState<string | null | undefined>(null);
+  const [convertToken, setConvertToken] = useState<string | null | undefined>();
   const searchParams = useSearchParams();
 
   const hasCollab =
@@ -68,7 +69,7 @@ export default function Document({
     // fetch data
     const dataFetch = async () => {
       try {
-        const response = await fetch("/api/editor/ai", {
+        const response = await fetch("/api/editor/convert", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -77,7 +78,7 @@ export default function Document({
 
         if (!response.ok) {
           throw new Error(
-            "No AI token provided, please set TIPTAP_AI_SECRET in your environment"
+            "No CONVERT token provided, please set TIPTAP_CONVERT_SECRET in your environment"
           );
         }
         const data = await response.json();
@@ -85,18 +86,51 @@ export default function Document({
         const { token } = data;
 
         // set state when the data received
-        setAiToken(token);
+        setConvertToken(token);
       } catch (e) {
         if (e instanceof Error) {
           console.error(e.message);
         }
-        setAiToken(null);
+        setConvertToken(null);
         return;
       }
     };
 
     dataFetch();
   }, []);
+  // useEffect(() => {
+  //   // fetch data
+  //   const dataFetch = async () => {
+  //     try {
+  //       const response = await fetch("/api/editor/ai", {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       });
+
+  //       if (!response.ok) {
+  //         throw new Error(
+  //           "No AI token provided, please set TIPTAP_AI_SECRET in your environment"
+  //         );
+  //       }
+  //       const data = await response.json();
+
+  //       const { token } = data;
+
+  //       // set state when the data received
+  //       setAiToken(token);
+  //     } catch (e) {
+  //       if (e instanceof Error) {
+  //         console.error(e.message);
+  //       }
+  //       setAiToken(null);
+  //       return;
+  //     }
+  //   };
+
+  //   dataFetch();
+  // }, []);
 
   const ydoc = useMemo(() => new YDoc(), []);
 
@@ -137,6 +171,7 @@ export default function Document({
       {DarkModeSwitcher}
       <BlockEditor
         aiToken={aiToken ?? undefined}
+        convertToken={convertToken ?? undefined}
         hasCollab={hasCollab}
         ydoc={ydoc}
         provider={provider}

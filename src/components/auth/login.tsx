@@ -48,7 +48,7 @@ export default function LoginPage() {
           <CardTitle className="text-2xl">Welcome to DocCollab</CardTitle>
         </CardHeader>
         {showErrorMessage && (
-          <div className="text-red-500 mb-4">
+          <div className="text-red-500 mb-4 text-center">
             Veuillez vous connecter pour accéder à cette page.
           </div>
         )}

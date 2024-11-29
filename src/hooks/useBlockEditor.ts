@@ -11,6 +11,7 @@ import { userColors, userNames } from "../lib/constants";
 import { initialContent } from "@/lib/data/initialContent";
 import { Ai } from "@/extensions/Ai";
 import { AiImage, AiWriter } from "@/extensions";
+import { Export } from "@tiptap-pro/extension-export";
 import { EditorUser } from "@/components/editor/BlockEditor/types";
 import { randomElement } from "../lib/utils";
 
@@ -22,12 +23,14 @@ declare global {
 
 export const useBlockEditor = ({
   aiToken,
+  convertToken,
   ydoc,
   provider,
   userId,
   userName = "Maxi",
 }: {
   aiToken?: string;
+  convertToken?: string;
   ydoc: YDoc;
   provider?: TiptapCollabProvider | null | undefined;
   userId?: string;
@@ -36,7 +39,6 @@ export const useBlockEditor = ({
   const [collabState, setCollabState] = useState<WebSocketStatus>(
     provider ? WebSocketStatus.Connecting : WebSocketStatus.Disconnected
   );
-
   const editor = useEditor(
     {
       immediatelyRender: true,
@@ -80,6 +82,10 @@ export const useBlockEditor = ({
               authorName: userName,
             })
           : undefined,
+        Export.configure({
+          appId: process.env.NEXT_PUBLIC_TIPTAP_CONVERT_APP_ID,
+          token: convertToken,
+        }),
         aiToken
           ? AiImage.configure({
               authorId: userId,

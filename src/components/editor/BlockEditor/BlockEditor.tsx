@@ -1,5 +1,6 @@
+"use client";
 import { EditorContent } from "@tiptap/react";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 
 import { LinkMenu } from "@/components/editor/menus";
 
@@ -20,23 +21,30 @@ import { TiptapCollabProvider } from "@hocuspocus/provider";
 
 export const BlockEditor = ({
   aiToken,
+  convertToken,
   ydoc,
   provider,
 }: {
   aiToken?: string;
+  convertToken?: string;
   hasCollab: boolean;
   ydoc: Y.Doc;
   provider?: TiptapCollabProvider | null | undefined;
 }) => {
   const menuContainerRef = useRef(null);
-
   const leftSidebar = useSidebar();
   const { editor, users, collabState } = useBlockEditor({
     aiToken,
+    convertToken,
     ydoc,
     provider,
   });
-
+  console.log("extention", editor.extensionManager.extensions);
+  useEffect(() => {
+    return () => {
+      if (editor) editor.destroy(); // Évite les multiples instances
+    };
+  }, [editor]);
   if (!editor || !users) {
     return null;
   }
