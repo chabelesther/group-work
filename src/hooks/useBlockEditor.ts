@@ -7,11 +7,11 @@ import { TiptapCollabProvider, WebSocketStatus } from "@hocuspocus/provider";
 import type { Doc as YDoc } from "yjs";
 
 import { ExtensionKit } from "@/extensions/extension-kit";
-import { userColors, userNames } from "../lib/constants";
+import { userColors } from "../lib/constants";
 import { initialContent } from "@/lib/data/initialContent";
 import { Ai } from "@/extensions/Ai";
 import { AiImage, AiWriter } from "@/extensions";
-import { Export } from "@tiptap-pro/extension-export";
+// import { Export } from "@tiptap-pro/extension-export";
 import { EditorUser } from "@/components/editor/BlockEditor/types";
 import { randomElement } from "../lib/utils";
 
@@ -27,13 +27,15 @@ export const useBlockEditor = ({
   ydoc,
   provider,
   userId,
-  userName = "Maxi",
+  userImg,
+  userName = "User",
 }: {
   aiToken?: string;
   convertToken?: string;
   ydoc: YDoc;
   provider?: TiptapCollabProvider | null | undefined;
   userId?: string;
+  userImg?: string;
   userName?: string;
 }) => {
   const [collabState, setCollabState] = useState<WebSocketStatus>(
@@ -71,8 +73,9 @@ export const useBlockEditor = ({
           ? CollaborationCursor.configure({
               provider,
               user: {
-                name: randomElement(userNames),
+                name: userName,
                 color: randomElement(userColors),
+                photoURL: userImg,
               },
             })
           : undefined,
@@ -82,10 +85,11 @@ export const useBlockEditor = ({
               authorName: userName,
             })
           : undefined,
-        Export.configure({
-          appId: process.env.NEXT_PUBLIC_TIPTAP_CONVERT_APP_ID,
-          token: convertToken,
-        }),
+        // Export.configure({
+        //   appId: "x9lyj1vk",
+        //   token:
+        //     "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzI5MTI5MzYsIm5iZiI6MTczMjkxMjkzNiwiZXhwIjoxNzMyOTk5MzM2LCJpc3MiOiJodHRwczovL2Nsb3VkLnRpcHRhcC5kZXYiLCJhdWQiOiJmMjk3MTc5Yy03MGNjLTRlYTEtYWZjNS1jMGYxMjNlZWIxY2MifQ.JjHfo0T3kO70etRqb9S-rSE16AGJ21Pa4dGy2PREj6M",
+        // }),
         aiToken
           ? AiImage.configure({
               authorId: userId,

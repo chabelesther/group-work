@@ -18,6 +18,8 @@ import { ContentItemMenu } from "../menus/ContentItemMenu";
 import { useSidebar } from "@/hooks/useSidebar";
 import * as Y from "yjs";
 import { TiptapCollabProvider } from "@hocuspocus/provider";
+import DocumentHeader from "./mainHeader/header";
+import { useAuth } from "@/context/authContext/auth";
 
 export const BlockEditor = ({
   aiToken,
@@ -31,6 +33,7 @@ export const BlockEditor = ({
   ydoc: Y.Doc;
   provider?: TiptapCollabProvider | null | undefined;
 }) => {
+  const { user } = useAuth();
   const menuContainerRef = useRef(null);
   const leftSidebar = useSidebar();
   const { editor, users, collabState } = useBlockEditor({
@@ -38,6 +41,9 @@ export const BlockEditor = ({
     convertToken,
     ydoc,
     provider,
+    userId: user?.uid,
+    userName: user?.displayName,
+    userImg: user?.photoURL,
   });
   console.log("extention", editor.extensionManager.extensions);
   useEffect(() => {
@@ -57,6 +63,7 @@ export const BlockEditor = ({
         editor={editor}
       />
       <div className="relative flex flex-col flex-1 h-full overflow-hidden">
+        <DocumentHeader />
         <EditorHeader
           editor={editor}
           collabState={collabState}
