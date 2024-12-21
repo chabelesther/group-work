@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useEditor, useEditorState } from "@tiptap/react";
 import type { AnyExtension, Editor } from "@tiptap/core";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import CollaborationHistory from "@tiptap-pro/extension-collaboration-history";
 import { TiptapCollabProvider, WebSocketStatus } from "@hocuspocus/provider";
 import type { Doc as YDoc } from "yjs";
 
@@ -41,6 +42,11 @@ export const useBlockEditor = ({
   const [collabState, setCollabState] = useState<WebSocketStatus>(
     provider ? WebSocketStatus.Connecting : WebSocketStatus.Disconnected
   );
+  const [versions, setVersions] = useState([]);
+  const [isAutoVersioning, setIsAutoVersioning] = useState(false);
+  const [latestVersion, setLatestVersion] = useState(null);
+  const [currentVersion, setCurrentVersion] = useState(null);
+  const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
   const editor = useEditor(
     {
       immediatelyRender: true,
@@ -76,6 +82,17 @@ export const useBlockEditor = ({
                 name: userName,
                 color: randomElement(userColors),
                 photoURL: userImg,
+              },
+            })
+          : undefined,
+        provider
+          ? CollaborationHistory.configure({
+              provider,
+              onUpdate: (data) => {
+                // Mettre à jour l'état des versions
+                setVersions(data.versions);
+                setIsAutoVersioning(data.versioningEnabled);
+                setCurrentVersion(data.currentVersion);
               },
             })
           : undefined,
@@ -128,7 +145,39 @@ export const useBlockEditor = ({
       );
     },
   });
+  const saveVersion = useCallback(
+    (description?: string) => {
+      if (editor) {
+        editor.commands.saveVersion(
+          description || `Version ${versions.length + 1}`
+        );
+      }
+    },
+    [editor]
+  );
 
+  const toggleVersioning = useCallback(() => {
+    if (editor) {
+      editor.commands.toggleVersioning();
+    }
+  }, [editor]);
+
+  const revertToVersion = useCallback(
+    (versionId: number) => {
+      if (editor) {
+        editor.commands.revertToVersion(versionId);
+      }
+    },
+    [editor]
+  );
+
+  const openVersionModal = useCallback(() => {
+    setIsVersionModalOpen(true);
+  }, []);
+
+  const closeVersionModal = useCallback(() => {
+    setIsVersionModalOpen(false);
+  }, []);
   useEffect(() => {
     provider?.on("status", (event: { status: WebSocketStatus }) => {
       setCollabState(event.status);
@@ -137,5 +186,19 @@ export const useBlockEditor = ({
 
   window.editor = editor;
 
-  return { editor, users, collabState };
+  return {
+    editor,
+    users,
+    collabState,
+    versions,
+    isAutoVersioning,
+    latestVersion,
+    currentVersion,
+    isVersionModalOpen,
+    saveVersion,
+    toggleVersioning,
+    revertToVersion,
+    openVersionModal,
+    closeVersionModal,
+  };
 };

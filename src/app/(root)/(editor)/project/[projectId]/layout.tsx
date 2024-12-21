@@ -21,9 +21,7 @@ export default function ProjectLayout({
   >("checking");
 
   useEffect(() => {
-    // Vérification de l'accès au projet
     const checkProjectAccess = async () => {
-      // Si aucun utilisateur n'est connecté, rediriger
       if (!user) {
         router.push(
           `/login?redirect=${encodeURIComponent(window.location.pathname)}`
@@ -32,25 +30,23 @@ export default function ProjectLayout({
       }
 
       try {
-        const userRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userRef);
+        const projectRef = doc(db, "projects", projectId);
+        const projectDoc = await getDoc(projectRef);
 
-        if (userDoc.exists()) {
-          const userData = userDoc.data() as UserProfile;
+        if (projectDoc.exists()) {
+          const projectData = projectDoc.data();
+          const collaborators = projectData?.collaborators || [];
 
-          if (userData.projects && userData.projects.includes(projectId)) {
-            // L'utilisateur a accès au projet
+          if (collaborators.includes(user.email)) {
             setAccessStatus("allowed");
           } else {
-            // L'utilisateur n'a pas accès au projet
             setAccessStatus("denied");
           }
         } else {
-          // Utilisateur non trouvé dans Firestore
           setAccessStatus("error");
         }
       } catch (error) {
-        console.error("Erreur Firestore :", error);
+        console.error("Erreur lors de la vérification de l'accès :", error);
         setAccessStatus("error");
       }
     };
@@ -58,7 +54,6 @@ export default function ProjectLayout({
     checkProjectAccess();
   }, [user, projectId, router]);
 
-  // Composants de gestion des différents états
   const AccessDeniedComponent = () => (
     <div className="flex flex-col items-center justify-center h-screen">
       <h2 className="text-2xl font-bold mb-4">Accès refusé</h2>
@@ -101,7 +96,6 @@ export default function ProjectLayout({
     </div>
   );
 
-  // Rendu conditionnel basé sur le statut d'accès
   switch (accessStatus) {
     case "checking":
       return <LoadingComponent />;

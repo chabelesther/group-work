@@ -6,13 +6,9 @@ export default function EditorLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div>
+    <main>
       {/* En-tête spécifique au groupe "editor" */}
-      <header>
-        <h1>Éditeur</h1>
-      </header>
-
       {children}
-    </div>
+    </main>
   );
 }

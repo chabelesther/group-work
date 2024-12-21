@@ -64,7 +64,7 @@ export default function NewProjectModal({
   });
 
   const onSubmit = async (data: ProjectFormValues) => {
-    if (!user) return;
+     if (!user) return;
     // TODO: Submiting should be done server side
     try {
       setIsLoading(true);
@@ -78,6 +78,8 @@ export default function NewProjectModal({
       await updateDoc(doc(db, "users", user.uid), {
         projects: arrayUnion(projectId),
       });
+    
+
       const projectData = {
         id: projectId,
         title: data.title,
@@ -97,8 +99,11 @@ export default function NewProjectModal({
         user.displayName || user.email,
         projectId
       );
-
-      if (result.success) {
+  // Enregistre l'utilisateur étant collaborateur
+      await updateDoc(projectRef, {
+        collaborators: arrayUnion(user.email),
+      });
+          if (result.success) {
         for (const email of collaborators) {
           await createInvitation(
             projectId,

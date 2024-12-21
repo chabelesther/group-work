@@ -18,8 +18,9 @@ import { ContentItemMenu } from "../menus/ContentItemMenu";
 import { useSidebar } from "@/hooks/useSidebar";
 import * as Y from "yjs";
 import { TiptapCollabProvider } from "@hocuspocus/provider";
-import DocumentHeader from "./mainHeader/header";
 import { useAuth } from "@/context/authContext/auth";
+import { VersionModal } from "./components/VersionModal";
+import DocumentHeader from "./mainHeader/header";
 
 export const BlockEditor = ({
   aiToken,
@@ -36,7 +37,21 @@ export const BlockEditor = ({
   const { user } = useAuth();
   const menuContainerRef = useRef(null);
   const leftSidebar = useSidebar();
-  const { editor, users, collabState } = useBlockEditor({
+  const {
+    editor,
+    users,
+    collabState,
+    versions,
+    isAutoVersioning,
+
+    currentVersion,
+    isVersionModalOpen,
+    saveVersion,
+    toggleVersioning,
+    revertToVersion,
+    openVersionModal,
+    closeVersionModal,
+  } = useBlockEditor({
     aiToken,
     convertToken,
     ydoc,
@@ -45,7 +60,6 @@ export const BlockEditor = ({
     userName: user?.displayName,
     userImg: user?.photoURL,
   });
-  console.log("extention", editor.extensionManager.extensions);
   useEffect(() => {
     return () => {
       if (editor) editor.destroy(); // Évite les multiples instances
@@ -63,7 +77,15 @@ export const BlockEditor = ({
         editor={editor}
       />
       <div className="relative flex flex-col flex-1 h-full overflow-hidden">
-        <DocumentHeader />
+        <DocumentHeader
+          editor={editor}
+          versions={versions}
+          isAutoVersioning={isAutoVersioning}
+          toggleVersioning={toggleVersioning}
+          saveVersion={saveVersion}
+          openVersionModal={openVersionModal}
+        />
+
         <EditorHeader
           editor={editor}
           collabState={collabState}
@@ -75,6 +97,15 @@ export const BlockEditor = ({
         <ContentItemMenu editor={editor} />
         <LinkMenu editor={editor} appendTo={menuContainerRef} />
         <TextMenu editor={editor} />
+        <VersionModal
+          isOpen={isVersionModalOpen}
+          versions={versions}
+          currentVersion={currentVersion}
+          // editor={editor}
+          provider={provider}
+          onClose={closeVersionModal}
+          onRevert={revertToVersion}
+        />
         <ColumnsMenu editor={editor} appendTo={menuContainerRef} />
         <TableRowMenu editor={editor} appendTo={menuContainerRef} />
         <TableColumnMenu editor={editor} appendTo={menuContainerRef} />

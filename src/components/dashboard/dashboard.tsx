@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/context/authContext/auth";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 // Composant de chargement
 const ProjectGridSkeleton = () => (
@@ -26,9 +27,12 @@ const ProjectGridSkeleton = () => (
 export default function Dashboard() {
   const { user } = useAuth();
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
-
+  const router = useRouter();
   // Redirection ou gestion si pas d'utilisateur
   if (!user) {
+    router.replace(
+      `/login?redirect=${encodeURIComponent(window.location.pathname)}`
+    );
     return (
       <div className="flex items-center justify-center h-screen">
         <motion.div
